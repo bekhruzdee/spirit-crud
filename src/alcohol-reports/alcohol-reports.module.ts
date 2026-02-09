@@ -6,10 +6,7 @@ import { ProductsModule } from '../products/products.module';
 import { AlcoholReport } from './entities/alcohol-report.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([AlcoholReport]),
-    ProductsModule, 
-  ],
+  imports: [TypeOrmModule.forFeature([AlcoholReport]), ProductsModule],
   controllers: [AlcoholReportsController],
   providers: [AlcoholReportsService],
 })
