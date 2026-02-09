@@ -1,15 +1,8 @@
-import {
-  IsUUID,
-  IsInt,
-  Min,
-  Max,
-  IsOptional,
-  IsNumber,
-} from 'class-validator';
+import { IsUUID, IsInt, Min, Max, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateAlcoholReportDto {
   @IsUUID()
-  productId: string;
+  productTypeId: string;
 
   @IsInt()
   @Min(2000)

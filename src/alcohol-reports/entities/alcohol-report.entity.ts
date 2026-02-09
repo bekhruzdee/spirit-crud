@@ -1,4 +1,4 @@
-import { Product } from 'src/products/entities/product.entity';
+import { ProductType } from 'src/product-types/entities/product-type.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -11,14 +11,14 @@ import {
 } from 'typeorm';
 
 @Entity('alcohol_reports')
-@Unique(['product', 'year', 'month'])
+@Unique(['productType', 'year', 'month'])
 export class AlcoholReport {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Product, { eager: true })
-  @JoinColumn({ name: 'product_id' })
-  product: Product;
+  @ManyToOne(() => ProductType, { eager: true })
+  @JoinColumn({ name: 'product_type_id' })
+  productType: ProductType;
 
   @Column()
   year: number;

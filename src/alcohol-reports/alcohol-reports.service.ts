@@ -9,45 +9,44 @@ import { Repository } from 'typeorm';
 import { AlcoholReport } from './entities/alcohol-report.entity';
 import { CreateAlcoholReportDto } from './dto/create-alcohol-report.dto';
 import { UpdateAlcoholReportDto } from './dto/update-alcohol-report.dto';
-import { ProductsService } from '../products/products.service';
+import { ProductTypesService } from '../product-types/product-types.service';
 
 @Injectable()
 export class AlcoholReportsService {
   constructor(
     @InjectRepository(AlcoholReport)
     private readonly reportRepo: Repository<AlcoholReport>,
-    private readonly productsService: ProductsService,
+    private readonly productTypesService: ProductTypesService,
   ) {}
 
   // ── CREATE ───────────────────────────────────────────────
   async create(dto: CreateAlcoholReportDto) {
-    // productId da bo‘sh joy bor-yo‘qligini tekshirish
-    const trimmedProductId = dto.productId.trim();
-    if (dto.productId !== trimmedProductId) {
+    const trimmedTypeId = dto.productTypeId.trim();
+    if (dto.productTypeId !== trimmedTypeId) {
       throw new BadRequestException(
-        'Product ID contains leading or trailing spaces. Please remove them.',
+        'ProductType ID contains leading or trailing spaces. Please remove them.',
       );
     }
 
-    // UUID formatini qo‘lda tekshirish
+    // UUID formatini tekshirish
     const uuidRegex =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(trimmedProductId)) {
+    if (!uuidRegex.test(trimmedTypeId)) {
       throw new BadRequestException(
-        'Invalid UUID format. Please provide a valid UUID (example: 123e4567-e89b-12d3-a456-426614174000)',
+        'Invalid UUID format. Please provide a valid ProductType ID',
       );
     }
 
-    const product = await this.productsService.findOne(trimmedProductId);
-    if (!product) {
+    const productType = await this.productTypesService.findOne(trimmedTypeId);
+    if (!productType) {
       throw new BadRequestException(
-        `Product with id ${trimmedProductId} not found`,
+        `ProductType with id ${trimmedTypeId} not found`,
       );
     }
 
     const exists = await this.reportRepo.findOne({
       where: {
-        product: { id: product.id },
+        productType: { id: productType.id },
         year: dto.year,
         month: dto.month,
       },
@@ -55,7 +54,7 @@ export class AlcoholReportsService {
 
     if (exists) {
       throw new ConflictException(
-        'Report for this product, year and month already exists',
+        'Report for this product type, year and month already exists',
       );
     }
 
@@ -64,16 +63,15 @@ export class AlcoholReportsService {
       'Distillat',
       'Vinomaterial',
       'SemiFinished',
-    ].includes(product.type ?? '');
+    ].includes(productType.code ?? '');
 
     const report = this.reportRepo.create({
       ...dto,
-      product,
+      productType,
       consumed_volume: isRawMaterial ? (dto.consumed_volume ?? 0) : null,
       consumed_abs: isRawMaterial ? (dto.consumed_abs ?? 0) : null,
     });
 
-    // Closing formulas
     report.closing_volume =
       (dto.opening_volume ?? 0) +
       (dto.received_volume ?? 0) +
@@ -103,7 +101,7 @@ export class AlcoholReportsService {
   // ── FIND ALL ─────────────────────────────────────────────
   async findAll() {
     const reports = await this.reportRepo.find({
-      relations: ['product'],
+      relations: ['productType'],
       order: { year: 'DESC', month: 'DESC' },
     });
 
@@ -119,7 +117,7 @@ export class AlcoholReportsService {
 
     const report = await this.reportRepo.findOne({
       where: { id: trimmedId },
-      relations: ['product'],
+      relations: ['productType'],
     });
 
     if (!report) {
@@ -140,7 +138,7 @@ export class AlcoholReportsService {
 
     const report = await this.reportRepo.findOne({
       where: { id: trimmedId },
-      relations: ['product'],
+      relations: ['productType'],
     });
 
     if (!report) {
@@ -149,21 +147,21 @@ export class AlcoholReportsService {
       );
     }
 
-    if (dto.productId) {
-      const trimmedProductId = dto.productId.trim();
-      if (dto.productId !== trimmedProductId) {
+    if (dto.productTypeId) {
+      const trimmedTypeId = dto.productTypeId.trim();
+      if (dto.productTypeId !== trimmedTypeId) {
         throw new BadRequestException(
-          'Product ID contains leading or trailing spaces. Please remove them.',
+          'ProductType ID contains leading or trailing spaces. Please remove them.',
         );
       }
 
-      const product = await this.productsService.findOne(trimmedProductId);
-      if (!product) {
+      const productType = await this.productTypesService.findOne(trimmedTypeId);
+      if (!productType) {
         throw new BadRequestException(
-          `Product with id ${trimmedProductId} not found`,
+          `ProductType with id ${trimmedTypeId} not found`,
         );
       }
-      report.product = product;
+      report.productType = productType;
     }
 
     const isRawMaterial = [
@@ -171,14 +169,13 @@ export class AlcoholReportsService {
       'Distillat',
       'Vinomaterial',
       'SemiFinished',
-    ].includes(report.product.type ?? '');
+    ].includes(report.productType.code ?? '');
 
     report.consumed_volume = isRawMaterial ? (dto.consumed_volume ?? 0) : null;
     report.consumed_abs = isRawMaterial ? (dto.consumed_abs ?? 0) : null;
 
     Object.assign(report, dto);
 
-    // Closing formulas
     report.closing_volume =
       (report.opening_volume ?? 0) +
       (report.received_volume ?? 0) +

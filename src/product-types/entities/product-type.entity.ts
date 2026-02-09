@@ -1,26 +1,26 @@
+import { AlcoholReport } from 'src/alcohol-reports/entities/alcohol-report.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
-import { AlcoholReport } from '../../alcohol-reports/entities/alcohol-report.entity';
 
-@Entity('products')
-export class Product {
+@Entity('product_types')
+export class ProductType {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ unique: true })
+  code: string;
+
+  @Column()
   name: string;
 
-  @OneToMany(() => AlcoholReport, (report) => report.product)
+  @OneToMany(() => AlcoholReport, (report) => report.productType)
   alcoholReports: AlcoholReport[];
-
-  @Column({ nullable: true })
-  type: 'Spirit' | 'Distillat' | 'Vinomaterial' | 'SemiFinished' | 'Aroq';
 
   @CreateDateColumn()
   createdAt: Date;

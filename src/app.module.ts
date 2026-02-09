@@ -3,8 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ProductsModule } from './products/products.module';
 import { AlcoholReportsModule } from './alcohol-reports/alcohol-reports.module';
+import { ProductTypesModule } from './product-types/product-types.module';
 
 @Module({
   imports: [
@@ -25,9 +25,8 @@ import { AlcoholReportsModule } from './alcohol-reports/alcohol-reports.module';
         synchronize: true,
       }),
     }),
-
-    ProductsModule,
     AlcoholReportsModule,
+    ProductTypesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
