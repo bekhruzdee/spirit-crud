@@ -5,47 +5,84 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  Unique,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('alcohol_reports')
+@Unique(['product', 'year', 'month'])
 export class AlcoholReport {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Product, (product) => product.reports, { eager: true })
+  @ManyToOne(() => Product, { eager: true })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
-  @Column() year: number;
-  @Column() month: number;
+  @Column()
+  year: number;
 
-  @Column('decimal', { nullable: true })    
-  year_start_volume: number;
-
-  @Column('decimal', { nullable: true })
-  year_start_abs: number;
+  @Column()
+  month: number;
 
   @Column('decimal', { nullable: true })
-  produced_volume: number;
+  opening_volume?: number;
 
   @Column('decimal', { nullable: true })
-  produced_abs: number;
+  opening_abs?: number;
 
   @Column('decimal', { nullable: true })
-  sold_volume: number;
+  received_volume?: number;
 
   @Column('decimal', { nullable: true })
-  sold_abs: number;
+  received_abs?: number;
 
   @Column('decimal', { nullable: true })
-  sold_sum: number;
+  consumed_volume?: number | null;
 
   @Column('decimal', { nullable: true })
-  loss_volume: number;
+  consumed_abs?: number | null;
 
   @Column('decimal', { nullable: true })
-  month_end_volume: number;
+  produced_volume?: number;
 
   @Column('decimal', { nullable: true })
-  month_end_abs: number;
+  produced_abs?: number;
+
+  @Column('decimal', { nullable: true })
+  sold_volume?: number;
+
+  @Column('decimal', { nullable: true })
+  sold_abs?: number;
+
+  @Column('decimal', { nullable: true })
+  sold_sum?: number;
+
+  @Column('decimal', { nullable: true })
+  export_volume?: number;
+
+  @Column('decimal', { nullable: true })
+  export_abs?: number;
+
+  @Column('decimal', { nullable: true })
+  export_sum?: number;
+
+  @Column('decimal', { nullable: true })
+  loss_volume?: number;
+
+  @Column('decimal', { nullable: true })
+  own_use_volume?: number;
+
+  @Column('decimal', { nullable: true })
+  closing_volume?: number;
+
+  @Column('decimal', { nullable: true })
+  closing_abs?: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
